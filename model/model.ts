@@ -6,6 +6,44 @@ interface iUser {
   password?: string;
   verify?: boolean;
   token?: string;
+  avatar: string;
+  avatarID: string;
 }
 
-export 
+interface iUserData extends iUser, mongoose.Document {}
+
+const userSchema = new mongoose.Schema<iUserData>(
+  {
+    name: {
+      type: String,
+    },
+    email: {
+      type: String,
+      toLowerCase: true,
+      required: [true, "Enter your email address"],
+      trim: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      min: 8,
+      required: true,
+    },
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    token: {
+      type: String,
+    },
+    avatar: {
+      type: String,
+    },
+    avatarID: {
+      type: String,
+    },
+  },
+  { timestamps: true }
+);
+
+export const userModel = mongoose.model<iUserData>("users", userSchema);
