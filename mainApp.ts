@@ -1,10 +1,12 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import cors from "cors";
 import { HTTP, mainError } from "./error/error";
+import user from "./router/router";
 
 export const mainApp = (app: Application) => {
   app.use(express.json());
   app.use(cors());
+  app.use("/api", user);
 
   app.get("/", (req: Request, res: Response) => {
     try {

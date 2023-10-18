@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { userModel } from "../model/model";
 import { envs } from "../config/envs";
 import { HTTP } from "../error/error";
+import { streamUpload } from "../utils/stream";
 
 export const Register = async (req: Request, res: Response) => {
   try {
@@ -147,14 +148,24 @@ export const UpdateUser = async (req: Request, res: Response) => {
     const { userID } = req.params;
 
     const user = await userModel.findById(userID);
+    const { secure_url, public_id }: any = await streamUpload(req);
 
-    return res.status(HTTP.OK).json({
+    const userInfo = await userModel.findByIdAndUpdate(
+      userID,
+      {
+        avatar: secure_url,
+        avatarID: public_id,
+      },
+      { new: true }
+    );
+
+    return res.status(HTTP.CREATE).json({
       message: "User",
-      data: user,
+      data: userInfo,
     });
   } catch (error: any) {
-    return res.status(HTTP.NOT_FOUND).json({
-      message: `Error occured viewing user: ${error.message}`,
+    return res.status(HTTP.BAD_REQUEST).json({
+      message: `Error occured updating user: ${error.message}`,
       info: error,
     });
   }
