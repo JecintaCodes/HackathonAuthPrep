@@ -1,10 +1,10 @@
 import { Response, Request } from "express";
-import { statusCode } from "../utils/statusCode";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { userModel } from "../model/model";
 import { envs } from "../config/envs";
+import { HTTP } from "../error/error";
 
 export const Register = async (req: Request, res: Response) => {
   try {
@@ -22,12 +22,12 @@ export const Register = async (req: Request, res: Response) => {
       verified: false,
       avatar: await email.charAt().toUpperCase(),
     });
-    return res.status(statusCode.CREATE).json({
+    return res.status(HTTP.CREATE).json({
       message: `User Registration SuccessFul:`,
       data: user,
     });
   } catch (error: any) {
-    return res.status(statusCode.BAD_REQUEST).json({
+    return res.status(HTTP.BAD_REQUEST).json({
       message: `User Registration Error: ${error.message}`,
       info: error,
     });
@@ -57,16 +57,16 @@ export const Verification = async (req: Request, res: Response) => {
         { new: true }
       );
 
-      return res.status(statusCode.CREATE).json({
+      return res.status(HTTP.CREATE).json({
         message: "Congratulations your account has been Verified!!!",
       });
     } else {
-      return res.status(statusCode.BAD_REQUEST).json({
+      return res.status(HTTP.BAD_REQUEST).json({
         message: "Error with your ID",
       });
     }
   } catch (error: any) {
-    return res.status(statusCode.BAD_REQUEST).json({
+    return res.status(HTTP.BAD_REQUEST).json({
       message: `User Registration Error: ${error.message}`,
       info: error,
     });
@@ -81,29 +81,97 @@ export const SignIn = async (req: Request, res: Response) => {
       const checkPassword = await bcrypt.compare(password, user?.password!);
       if (checkPassword) {
         if (user.verified && user.token === "") {
-          return res.status(statusCode.CREATE).json({
+          return res.status(HTTP.CREATE).json({
             message: "Welcome back",
           });
         } else {
-          return res.status(statusCode.BAD_REQUEST).json({
+          return res.status(HTTP.BAD_REQUEST).json({
             message:
               "Restricted Access, Please Check Your Mail to Verify Your Account",
           });
         }
       } else {
-        return res.status(statusCode.BAD_REQUEST).json({
+        return res.status(HTTP.BAD_REQUEST).json({
           message: "Invalid Passsword",
         });
       }
     } else {
-      return res.status(statusCode.NOT_FOUND).json({
+      return res.status(HTTP.NOT_FOUND).json({
         message: "Invalid User",
       });
     }
   } catch (error: any) {
-    return res.status(statusCode.BAD_REQUEST).json({
-      message: "Error Occured while signing user in",
-      data: error.message,
+    return res.status(HTTP.BAD_REQUEST).json({
+      message: `Error Occured while signing user in:${error.message}`,
+      info: error,
+    });
+  }
+};
+
+export const Users = async (req: Request, res: Response) => {
+  try {
+    const users = await userModel.find();
+
+    return res.status(HTTP.OK).json({
+      message: "success viewAllUser",
+      data: users,
+    });
+  } catch (error: any) {
+    return res.status(HTTP.NOT_FOUND).json({
+      message: `Error occured viewing all users: ${error.message}`,
+      info: error,
+    });
+  }
+};
+
+export const SingleUser = async (req: Request, res: Response) => {
+  try {
+    const { userID } = req.params;
+
+    const user = await userModel.findById(userID);
+
+    return res.status(HTTP.OK).json({
+      message: "User",
+      data: user,
+    });
+  } catch (error: any) {
+    return res.status(HTTP.NOT_FOUND).json({
+      message: `Error occured viewing user: ${error.message}`,
+      info: error,
+    });
+  }
+};
+
+export const UpdateUser = async (req: Request, res: Response) => {
+  try {
+    const { userID } = req.params;
+
+    const user = await userModel.findById(userID);
+
+    return res.status(HTTP.OK).json({
+      message: "User",
+      data: user,
+    });
+  } catch (error: any) {
+    return res.status(HTTP.NOT_FOUND).json({
+      message: `Error occured viewing user: ${error.message}`,
+      info: error,
+    });
+  }
+};
+
+export const DeleteUser = async (req: Request, res: Response) => {
+  try {
+    const { userID } = req.params;
+    const remove = await userModel.findByIdAndDelete(userID);
+
+    return res.status(HTTP.OK).json({
+      message: "Deleted",
+    });
+  } catch (error: any) {
+    return res.status(HTTP.NOT_FOUND).json({
+      message: `Error occured deleting users: ${error.message}`,
+      info: error,
     });
   }
 };
