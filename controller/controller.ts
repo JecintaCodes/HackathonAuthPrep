@@ -7,8 +7,8 @@ export const Register = async (req: Request, res: Response) => {
   try {
     const { email, password, name } = req.body;
     const lock = await bcrypt.genSalt(10);
-    const encrypt = await bcrypt.salt(password, lock);
-    const token = await jwt.sign();
+    const encrypt = await bcrypt.hash(password, lock);
+    // const token = await jwt.sign();
 
     // const
     return res.status(statusCode.CREATE).json({
