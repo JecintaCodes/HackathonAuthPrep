@@ -4,7 +4,7 @@ interface iUser {
   name?: string;
   email?: string;
   password?: string;
-  verify?: boolean;
+  verified?: boolean;
   token?: string;
   avatar: string;
   avatarID: string;
@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema<iUserData>(
       min: 8,
       required: true,
     },
-    verify: {
+    verified: {
       type: Boolean,
       default: false,
     },
